@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script>
+        function DI() {
+            this.dependencies = {};
+        }
+
+        DI.prototype.register = function (name, obj) {
+            this.dependencies[name] = obj;
+        };
+
+        DI.prototype.resolve = function (name) {
+            console.log(this.dependencies);
+            return this.dependencies[name];
+        };
+        
+        DI.prototype.inject = function () {
+            var self = this;
+            var args = Array.prototype.slice.call(arguments);
+            var func = args.shift();
+            var params = getParam(func);
+            console.log(params);
+
+            var func_args = params.map(function (p) {
+                return self.resolve(p) || args.shift();
+            });
+
+            console.log(func_args);
+            return func.apply(null,func_args);
+        };
+
+        function getParam(fn) {
+            var args = fn.toString().match(/^\s?function\s[^(]+\(([^)]+)/i)[1];
+            console.log(args);
+            return args.match(/[^,]+/g);
+        }
+
+
+        function move(car, name){
+            for(var prop in car) var c = car[prop];
+            return c+' : '+name;
+        }
+
+        var d = new DI();
+        d.register('car',{make: 'Audi'});
+        //console.log(d);
+        console.log(d.inject(move, 'A6'));
+
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
